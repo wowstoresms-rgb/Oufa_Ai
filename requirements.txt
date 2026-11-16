@@ -1,0 +1,8 @@
+flask
+google-genai
+Pillow
+img2pdf
+edge-tts
+requests
+pypdf
+gunicorn
