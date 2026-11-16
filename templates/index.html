@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080808"><title>Oufa_Ai STUDIO</title>
+<style>
+:root{--bg:#080808;--panel:#141414;--panel2:#1c1c1c;--gold:#FFD60A;--muted:#aaa;--line:#303030}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f5f5f5;font-family:Tahoma,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#0d0d0df2;border-bottom:1px solid var(--line);padding:13px 4%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-weight:900;letter-spacing:.5px;font-size:19px}.logo span{color:var(--gold)}
+button,.btn{border:1px solid #514600;background:var(--gold);color:#111;font-weight:bold;padding:11px 14px;border-radius:11px;cursor:pointer}
+button.secondary{background:#202020;color:#fff;border-color:#3a3a3a}.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+main{max-width:1100px;margin:auto;padding:20px 15px 50px}.section-title{font-size:16px;color:var(--gold);margin:18px 0 10px}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.tool{background:var(--panel);border:1px solid var(--line);color:#eee;border-radius:12px;padding:13px 8px;min-height:70px;font-size:13px}.tool.active{border-color:var(--gold);color:var(--gold);background:#211d08}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
+textarea,input,select{width:100%;background:#090909;color:white;border:1px solid #383838;border-radius:10px;padding:13px;font:inherit;outline:none}
+textarea{min-height:115px;resize:vertical}.attach{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.attach label{background:#242424;border:1px solid #414141;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px}
+input[type=file]{display:none}.primary{width:100%;margin-top:13px;font-size:16px;padding:14px}
+.preview{min-height:130px;border:1px dashed #555;border-radius:12px;display:grid;place-items:center;padding:12px;color:var(--muted);overflow:hidden}
+.preview img,.preview video{max-width:100%;max-height:440px;border-radius:10px}.preview audio{width:100%}
+.output{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;color:#eee;min-height:55px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions a{color:#111;text-decoration:none;background:var(--gold);padding:11px 14px;border-radius:10px;font-weight:bold}
+small,.hint{color:var(--muted);font-size:12px}.status{margin-top:10px;color:var(--gold);white-space:pre-wrap}
+.modal{display:none;position:fixed;inset:0;background:#000c;z-index:10;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modal-box{background:#171717;border:1px solid #555;border-radius:16px;padding:18px;width:min(480px,100%)}
+@media(max-width:650px){header{align-items:flex-start;flex-direction:column}.tools{grid-template-columns:repeat(2,1fr)}main{padding:12px}.logo{font-size:18px}.top-actions{width:100%}.top-actions button{flex:1}}
+</style></head>
+<body>
+<header><div class="logo">OUFA_<span>AI</span> STUDIO</div><div class="top-actions">
+<button class="secondary" onclick="openModal('keys')">🔑 حسابات AI</button>
+<button class="secondary" onclick="openModal('skills')">🧩 المهارات</button></div></header>
+<main>
+<div class="section-title">⚡ اختر المهمة</div>
+<div class="tools" id="tools">
+<button class="tool active" data-action="assistant">🧠 ذكاء شامل / أكواد</button>
+<button class="tool" data-action="pdf_summary">📄 تلخيص PDF</button>
+<button class="tool" data-action="image_gen">🎨 توليد صور AI</button>
+<button class="tool" data-action="tts">🔊 نص إلى صوت</button>
+<button class="tool" data-action="video_merge">🎬 دمج فيديوهات</button>
+<button class="tool" data-action="video_reel">📱 صور إلى ريلز 9:16</button>
+<button class="tool" data-action="video_compress">🗜️ ضغط فيديو</button>
+<button class="tool" data-action="office_pdf">📝 Word/PPT إلى PDF</button>
+<button class="tool" data-action="image_to_pdf">🖼️ صور إلى PDF</button>
+<button class="tool" data-action="image_convert">🔄 تحويل صيغ الصور</button>
+</div>
+<section class="panel">
+<div class="section-title">💬 اكتب أمرك بلغة بسيطة</div>
+<textarea id="prompt" placeholder="مثال: لخص الملف في 10 نقاط، أو اكتب كابشن تسويقي احترافي..."></textarea>
+<div class="attach">
+<label>📎 إرفاق ملفات متعددة<input id="files" type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx"></label>
+<label>📷 فتح الكاميرا<input id="camera" type="file" accept="image/*" capture="environment"></label>
+<select id="format" style="width:auto"><option value="webp">WEBP</option><option value="png">PNG</option><option value="jpeg">JPG</option></select>
+<select id="voice" style="width:auto"><option value="ar-EG-SalmaNeural">عربي - سلمى</option><option value="ar-EG-ShakirNeural">عربي - شاكر</option><option value="en-US-JennyNeural">English - Jenny</option><option value="en-US-GuyNeural">English - Guy</option></select>
+</div><small id="fileNames">لم يتم اختيار ملفات</small>
+<button class="primary" onclick="processTask()">🚀 تنفيذ المهمة</button><div class="status" id="status"></div>
+</section>
+<section class="panel"><div class="section-title">👁️ معاينة النتيجة</div><div class="preview" id="preview">ستظهر النتيجة هنا بعد التنفيذ</div>
+<div class="actions" id="downloadArea"></div></section>
+<section class="panel"><div class="section-title">📋 المخرجات النصية</div><div class="output" id="output">النصوص والملخصات والأكواد ستظهر هنا.</div><div class="actions"><button class="secondary" onclick="copyText()">📋 نسخ النص</button><button class="secondary" onclick="editPrompt()">✏️ تعديل الأمر</button></div></section>
+</main>
+<div class="modal" id="keys"><div class="modal-box"><h3>🔑 حسابات AI</h3><p class="hint">مفتاح Gemini يحفظ في LocalStorage على هذا المتصفح.</p><input id="apiKey" type="password" placeholder="Google Gemini API Key"><div class="actions"><button onclick="saveKey()">حفظ المفتاح</button><button class="secondary" onclick="closeModal('keys')">إغلاق</button></div></div></div>
+<div class="modal" id="skills"><div class="modal-box"><h3>🧩 المهارات المثبتة</h3><p class="hint">أضف ملفات Python إلى مجلد skills/ على الخادم. كل ملف يجب أن يعرّف run(input_data).</p><div id="skillList">جارٍ التحميل...</div><button class="secondary" onclick="loadSkills()">تحديث القائمة</button><button class="secondary" onclick="closeModal('skills')">إغلاق</button></div></div>
+<script>
+let action='assistant';
+document.querySelectorAll('.tool').forEach(b=>b.addEventListener('click',()=>{action=b.dataset.action;document.querySelectorAll('.tool').forEach(x=>x.classList.toggle('active',x===b));}));
+const allFiles=()=>[...document.getElementById('files').files,...document.getElementById('camera').files];
+['files','camera'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{document.getElementById('fileNames').textContent=allFiles().map(f=>f.name).join('، ')||'لم يتم اختيار ملفات';}));
+function openModal(id){document.getElementById(id).classList.add('show');if(id==='keys')document.getElementById('apiKey').value=localStorage.getItem('gemini_key')||'';if(id==='skills')loadSkills();}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function saveKey(){localStorage.setItem('gemini_key',document.getElementById('apiKey').value.trim());alert('تم حفظ المفتاح على هذا المتصفح');closeModal('keys')}
+async function processTask(){
+ const status=document.getElementById('status');status.textContent='⏳ جارٍ تنفيذ المهمة...';
+ const fd=new FormData();fd.append('action',action);fd.append('prompt',document.getElementById('prompt').value);
+ fd.append('api_key',localStorage.getItem('gemini_key')||'');fd.append('format',document.getElementById('format').value);fd.append('voice',document.getElementById('voice').value);
+ allFiles().forEach(f=>fd.append('files',f));
+ try{
+  const r=await fetch('/api/process',{method:'POST',body:fd});const data=await r.json();if(!r.ok||!data.ok)throw Error(data.error||'حدث خطأ');
+  status.textContent='✅ اكتملت المهمة';document.getElementById('output').textContent=data.text||'';
+  const prev=document.getElementById('preview'), area=document.getElementById('downloadArea');prev.innerHTML='';area.innerHTML='';
+  const items=data.files|| (data.url?[{url:data.url,filename:data.filename,kind:data.kind}]:[]);
+  items.forEach(item=>{let el;if((item.kind||data.kind)==='image'||/\.(png|jpe?g|webp)$/i.test(item.filename||'')){el=document.createElement('img');el.src=item.url}
+   else if((item.kind||data.kind)==='video'||/\.mp4$/i.test(item.filename||'')){el=document.createElement('video');el.src=item.url;el.controls=true}
+   else if((item.kind||data.kind)==='audio'||/\.mp3$/i.test(item.filename||'')){el=document.createElement('audio');el.src=item.url;el.controls=true}
+   else {el=document.createElement('a');el.href=item.url;el.textContent='فتح الملف الناتج';el.target='_blank'}
+   prev.appendChild(el);const a=document.createElement('a');a.href=item.url;a.download=item.filename||'Oufa_Ai_result';a.textContent='⬇️ تحميل النتيجة النهائية';area.appendChild(a);
+  });
+  if(!items.length)prev.textContent='تم إنشاء المخرجات النصية.';
+ }catch(e){status.textContent='❌ '+e.message}
+}
+function copyText(){navigator.clipboard.writeText(document.getElementById('output').textContent).then(()=>alert('تم نسخ النص'))}
+function editPrompt(){document.getElementById('prompt').focus();document.getElementById('prompt').scrollIntoView({behavior:'smooth'})}
+async function loadSkills(){try{let d=await(await fetch('/api/skills')).json();document.getElementById('skillList').innerHTML=d.skills.length?d.skills.map(s=>`<p>🧩 ${s}</p>`).join(''):'لا توجد مهارات مثبتة بعد.'}catch(e){document.getElementById('skillList').textContent='تعذر تحميل المهارات'}}
+</script></body></html>
